@@ -1,0 +1,89 @@
+# ─── Python ───────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+*.pyo
+*.pyd
+
+# ─── Virtual Environments ─────────────────────────────────────────────────────
+.venv/
+venv/
+ENV/
+env/
+env.bak/
+venv.bak/
+
+# ─── Distribution / Packaging ─────────────────────────────────────────────────
+*.egg-info/
+*.egg
+dist/
+build/
+.eggs/
+wheels/
+
+# ─── Jupyter Notebooks ────────────────────────────────────────────────────────
+.ipynb_checkpoints/
+# Uncomment below to ignore notebooks entirely; keep commented to track them:
+# *.ipynb
+
+# ─── Environment Variables ────────────────────────────────────────────────────
+.env
+.env.local
+.env.*.local
+*.env
+
+# ─── Large ML Artifacts (use Git LFS or DVC) ─────────────────────────────────
+models/*.pkl
+models/*.joblib
+models/*.h5
+models/*.pt
+models/*.onnx
+
+# ─── Generated Data Files ─────────────────────────────────────────────────────
+data/processed/*.csv
+data/processed/*.parquet
+data/audit_logs.db
+
+# ─── Generated Output Files ───────────────────────────────────────────────────
+outputs/*.csv
+outputs/*.json
+reports/figures/*.png
+reports/figures/*.svg
+reports/figures/*.jpg
+
+# ─── Logs & Runtime ───────────────────────────────────────────────────────────
+*.log
+logs/
+*.sqlite
+*.db
+
+# ─── OS-Specific ──────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+ehthumbs.db
+
+# ─── IDEs & Editors ───────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.suo
+*.user
+*.swp
+*.swo
+*~
+
+# ─── Testing & Coverage ───────────────────────────────────────────────────────
+.pytest_cache/
+.coverage
+htmlcov/
+*.coveragerc
+.tox/
+
+# ─── Type Checking ────────────────────────────────────────────────────────────
+.mypy_cache/
+.pytype/
+
+# ─── Documentation Builds ─────────────────────────────────────────────────────
+docs/_build/
+site/
