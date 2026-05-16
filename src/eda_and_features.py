@@ -8,11 +8,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import joblib
+from pathlib import Path
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
+
+# Resolve project root (works from any working directory)
+ROOT = Path(__file__).resolve().parent.parent
 
 # Set visualization style
 sns.set_theme(style="whitegrid")
@@ -23,7 +27,7 @@ plt.rcParams['figure.figsize'] = (10, 6)
 # Load the dataset and verify shape, dtypes, null counts, and value ranges.
 
 # %%
-df = pd.read_csv('Loan_Data.csv')
+df = pd.read_csv(ROOT / 'data' / 'raw' / 'Loan_Data.csv')
 print("Dataset Shape:", df.shape)
 print("\nMissing Values:\n", df.isnull().sum())
 print("\nData Types:\n", df.dtypes)
@@ -46,7 +50,7 @@ for col in numerical_features:
     ax[1].set_title(f'{col} by Default Status')
     
     plt.tight_layout()
-    plt.savefig(f'{col}_distribution.png')
+    plt.savefig(ROOT / 'reports' / 'figures' / f'{col}_distribution.png')
     plt.close()
 
 # %% [markdown]
@@ -61,7 +65,7 @@ plt.figure(figsize=(8, 5))
 sns.barplot(x=fico_default.index, y=fico_default.values)
 plt.title('Default Rate by FICO Band')
 plt.ylabel('Default Rate')
-plt.savefig('default_rate_by_fico_band.png')
+plt.savefig(ROOT / 'reports' / 'figures' / 'default_rate_by_fico_band.png')
 plt.close()
 
 # Income Decile
@@ -72,7 +76,7 @@ plt.figure(figsize=(8, 5))
 sns.barplot(x=income_default.index, y=income_default.values)
 plt.title('Default Rate by Income Decile')
 plt.ylabel('Default Rate')
-plt.savefig('default_rate_by_income_decile.png')
+plt.savefig(ROOT / 'reports' / 'figures' / 'default_rate_by_income_decile.png')
 plt.close()
 
 # Credit Lines
@@ -81,7 +85,7 @@ plt.figure(figsize=(8, 5))
 sns.barplot(x=lines_default.index, y=lines_default.values)
 plt.title('Default Rate by Credit Lines Outstanding')
 plt.ylabel('Default Rate')
-plt.savefig('default_rate_by_credit_lines.png')
+plt.savefig(ROOT / 'reports' / 'figures' / 'default_rate_by_credit_lines.png')
 plt.close()
 
 # Years Employed
@@ -90,7 +94,7 @@ plt.figure(figsize=(8, 5))
 sns.barplot(x=emp_default.index, y=emp_default.values)
 plt.title('Default Rate by Years Employed')
 plt.ylabel('Default Rate')
-plt.savefig('default_rate_by_years_employed.png')
+plt.savefig(ROOT / 'reports' / 'figures' / 'default_rate_by_years_employed.png')
 plt.close()
 
 # %% [markdown]
@@ -101,7 +105,7 @@ plt.figure(figsize=(10, 8))
 corr = df.drop(columns=['fico_band', 'income_decile', 'customer_id']).corr()
 sns.heatmap(corr, annot=True, cmap='coolwarm', fmt=".2f")
 plt.title('Feature Correlation Heatmap')
-plt.savefig('correlation_heatmap.png')
+plt.savefig(ROOT / 'reports' / 'figures' / 'correlation_heatmap.png')
 plt.close()
 
 # %% [markdown]
@@ -124,7 +128,7 @@ df['credit_utilisation'] = df['credit_lines_outstanding'] / 5
 
 # Display enriched dataset info
 print("\nEnriched Dataset Head:\n", df.head())
-df.to_csv('Loan_Data_Enriched.csv', index=False)
+df.to_csv(ROOT / 'data' / 'processed' / 'Loan_Data_Enriched.csv', index=False)
 
 # %% [markdown]
 # ### Assess feature importance using a quick Random Forest fit
@@ -143,7 +147,7 @@ plt.figure(figsize=(10, 6))
 sns.barplot(x=importance.values, y=importance.index)
 plt.title('Feature Importance (Random Forest)')
 plt.xlabel('Importance')
-plt.savefig('feature_importance.png')
+plt.savefig(ROOT / 'reports' / 'figures' / 'feature_importance.png')
 plt.close()
 
 # %% [markdown]
@@ -170,7 +174,7 @@ preprocessor = ColumnTransformer(
 preprocessor.fit(X_train)
 
 # Save the preprocessor pipeline
-joblib.dump(preprocessor, 'preprocessing_pipeline.pkl')
+joblib.dump(preprocessor, ROOT / 'models' / 'preprocessing_pipeline.pkl')
 
 print("\nPreprocessing pipeline saved to 'preprocessing_pipeline.pkl'.")
 print("Phase 1 & 2 Completed Successfully.")

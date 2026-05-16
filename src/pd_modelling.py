@@ -8,6 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import joblib
+from pathlib import Path
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
@@ -17,12 +18,15 @@ from sklearn.metrics import roc_curve, auc, confusion_matrix, brier_score_loss, 
 from sklearn.calibration import calibration_curve
 from scipy.stats import ks_2samp
 
+# Resolve project root
+ROOT = Path(__file__).resolve().parent.parent
+
 # Set visualization style
 sns.set_theme(style="whitegrid")
 plt.rcParams['figure.figsize'] = (10, 6)
 
 # Load Data and Preprocessor
-df = pd.read_csv('Loan_Data_Enriched.csv')
+df = pd.read_csv(ROOT / 'data' / 'processed' / 'Loan_Data_Enriched.csv')
 features = [col for col in df.columns if col not in ['customer_id', 'default']]
 X = df[features]
 y = df['default']
@@ -31,7 +35,7 @@ y = df['default']
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
 
 # Load pipeline
-preprocessor = joblib.load('preprocessing_pipeline.pkl')
+preprocessor = joblib.load(ROOT / 'models' / 'preprocessing_pipeline.pkl')
 X_train_scaled = preprocessor.transform(X_train)
 X_test_scaled = preprocessor.transform(X_test)
 
@@ -51,7 +55,7 @@ param_grid_lr = {'C': [0.01, 0.1, 1, 10]}
 grid_lr = GridSearchCV(LogisticRegression(max_iter=1000, class_weight='balanced'), param_grid_lr, cv=5, scoring='roc_auc')
 grid_lr.fit(X_train_scaled, y_train)
 models['Logistic Regression'] = grid_lr.best_estimator_
-joblib.dump(grid_lr.best_estimator_, 'lr_model.pkl')
+joblib.dump(grid_lr.best_estimator_, ROOT / 'models' / 'lr_model.pkl')
 
 # 2. Decision Tree
 print("Training Decision Tree...")
@@ -59,7 +63,7 @@ param_grid_dt = {'max_depth': [3, 5, 7, 10], 'min_samples_leaf': [10, 20, 50]}
 grid_dt = GridSearchCV(DecisionTreeClassifier(class_weight='balanced', random_state=42), param_grid_dt, cv=5, scoring='roc_auc')
 grid_dt.fit(X_train_scaled, y_train)
 models['Decision Tree'] = grid_dt.best_estimator_
-joblib.dump(grid_dt.best_estimator_, 'dt_model.pkl')
+joblib.dump(grid_dt.best_estimator_, ROOT / 'models' / 'dt_model.pkl')
 
 # 3. Random Forest
 print("Training Random Forest...")
@@ -67,7 +71,7 @@ param_grid_rf = {'n_estimators': [50, 100], 'max_features': ['sqrt', 'log2']}
 grid_rf = GridSearchCV(RandomForestClassifier(class_weight='balanced', random_state=42), param_grid_rf, cv=5, scoring='roc_auc')
 grid_rf.fit(X_train_scaled, y_train)
 models['Random Forest'] = grid_rf.best_estimator_
-joblib.dump(grid_rf.best_estimator_, 'rf_model.pkl')
+joblib.dump(grid_rf.best_estimator_, ROOT / 'models' / 'rf_model.pkl')
 
 # 4. XGBoost
 print("Training XGBoost...")
@@ -75,7 +79,7 @@ param_grid_xgb = {'learning_rate': [0.01, 0.1], 'max_depth': [3, 5]}
 grid_xgb = GridSearchCV(XGBClassifier(scale_pos_weight=scale_pos_weight, random_state=42, use_label_encoder=False, eval_metric='logloss'), param_grid_xgb, cv=5, scoring='roc_auc')
 grid_xgb.fit(X_train_scaled, y_train)
 models['XGBoost'] = grid_xgb.best_estimator_
-joblib.dump(grid_xgb.best_estimator_, 'xgb_model.pkl')
+joblib.dump(grid_xgb.best_estimator_, ROOT / 'models' / 'xgb_model.pkl')
 
 print("All models trained and saved.")
 
@@ -128,7 +132,7 @@ for name, model in models.items():
     plt.ylabel('True')
     plt.xlabel('Predicted')
     plt.tight_layout()
-    plt.savefig(f'cm_{name.replace(" ", "_").lower()}.png')
+    plt.savefig(ROOT / 'reports' / 'figures' / f'cm_{name.replace(" ", "_").lower()}.png')
     plt.close()
 
 # Finalize ROC plot
@@ -138,7 +142,7 @@ ax_roc.set_ylabel('True Positive Rate')
 ax_roc.set_title('ROC Curve Comparison')
 ax_roc.legend(loc="lower right")
 fig_roc.tight_layout()
-fig_roc.savefig('roc_curves.png')
+fig_roc.savefig(ROOT / 'reports' / 'figures' / 'roc_curves.png')
 plt.close(fig_roc)
 
 # Finalize Calibration plot
@@ -147,13 +151,13 @@ ax_cal.set_ylabel('Fraction of positives')
 ax_cal.set_title('Calibration Curves')
 ax_cal.legend(loc="upper left")
 fig_cal.tight_layout()
-fig_cal.savefig('calibration_curves.png')
+fig_cal.savefig(ROOT / 'reports' / 'figures' / 'calibration_curves.png')
 plt.close(fig_cal)
 
 results_df = pd.DataFrame(results).set_index('Model')
 print("\nModel Evaluation Results:")
 print(results_df)
-results_df.to_csv('model_comparison.csv')
+results_df.to_csv(ROOT / 'outputs' / 'model_comparison.csv')
 
 # %% [markdown]
 # ### Champion Model Selection
@@ -202,4 +206,4 @@ df['expected_loss'] = df['predicted_pd'] * df['loan_amt_outstanding'] * LGD
 
 total_el = df['expected_loss'].sum()
 print(f"\nTotal Portfolio Expected Loss: ${total_el:,.2f}")
-df.to_csv('Loan_Data_Scored.csv', index=False)
+df.to_csv(ROOT / 'data' / 'processed' / 'Loan_Data_Scored.csv', index=False)
