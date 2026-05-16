@@ -33,24 +33,17 @@ wheels/
 .env.*.local
 *.env
 
-# ─── Large ML Artifacts (use Git LFS or DVC) ─────────────────────────────────
-models/*.pkl
-models/*.joblib
+# ─── Large ML Artifacts (tracked via Git LFS) ────────────────────────────────
+# *.pkl and *.joblib are tracked by Git LFS via .gitattributes
 models/*.h5
 models/*.pt
 models/*.onnx
 
 # ─── Generated Data Files ─────────────────────────────────────────────────────
-data/processed/*.csv
-data/processed/*.parquet
 data/audit_logs.db
 
 # ─── Generated Output Files ───────────────────────────────────────────────────
-outputs/*.csv
-outputs/*.json
-reports/figures/*.png
-reports/figures/*.svg
-reports/figures/*.jpg
+# outputs/ and reports/figures/ are committed for portfolio visibility
 
 # ─── Logs & Runtime ───────────────────────────────────────────────────────────
 *.log
